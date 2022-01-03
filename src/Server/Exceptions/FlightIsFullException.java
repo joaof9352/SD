@@ -1,12 +1,12 @@
 package Server.Exceptions;
 
-public class FlightIsFull extends Exception{
+public class FlightIsFullException extends Exception{
 
-    public FlightIsFull(){
+    public FlightIsFullException(){
         super();
     }
 
-    public FlightIsFull(String msg){
+    public FlightIsFullException(String msg){
         super(msg);
     }
 

@@ -1,11 +1,11 @@
 package Server.Exceptions;
 
-public class NoFlightFound extends Exception{
-    public NoFlightFound(){
+public class NoFlightFoundException extends Exception{
+    public NoFlightFoundException(){
         super();
     }
 
-    public NoFlightFound(String msg){
+    public NoFlightFoundException(String msg){
         super(msg);
     }
 }
