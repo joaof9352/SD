@@ -21,14 +21,24 @@ public class ThreadClientOutput implements Runnable{
             String line;
 
             while((line = readSocket.readUTF()) != null) {
-                if(line.equals("Sessão iniciada como Admin!")){
+                if(line.equals("Registado")) {
+                    System.out.println("Registado!");
+                    this.lock.lock();
+                    cond.signal();
+                    this.lock.unlock();
+                } else if(line.equals("Registo falhou")){
+                    System.out.println("Registo falhou, username já existe!");
+                    this.lock.lock();
+                    cond.signal();
+                    this.lock.unlock();
+                } else if(line.equals("Sessão iniciada como Admin!")){
                     System.out.println("Sessão iniciada!");
                     this.lock.lock();
                     cond.signal();
                     this.lock.unlock();
                     AuthenticationSingleton.getInstance().setAuthenticated(true);
                     AuthenticationSingleton.getInstance().setAdmin(true);
-                } else if(line.equals("Sessão iniciada como Client")){
+                } else if(line.equals("Sessão iniciada!")){
                     System.out.println("Sessão iniciada!");
                     this.lock.lock();
                     cond.signal();

@@ -17,7 +17,9 @@ public class ThreadClientInput implements Runnable{
 
     private AuthenticationSingleton as;
 
-    private static String[] opcoes1 = {"Autenticar-se"};
+    private static String[] opcoes1 = {
+            "Autenticar-se",
+            "Registar-se"};
     private static String[] opcoes2 = { // Utilizador
             "Reservar um Voo", // 1
             "Cancelar uma reserva", // 2
@@ -44,9 +46,10 @@ public class ThreadClientInput implements Runnable{
 
     public void run() {
         String input;
+        int i = 1;
         boolean authenticated = false;
         try {
-            while(!(input = stringIn.readLine()).equals("0")){
+            while(i == 1){
                 if (!(AuthenticationSingleton.getInstance().isAuthenticated()) ) {
                     Menu menu = new Menu(opcoes1);
                     menu.execute();
@@ -62,7 +65,7 @@ public class ThreadClientInput implements Runnable{
                             } catch (InputMismatchException e) {
                                 System.out.println(e.toString());
                             }
-                            writeSocket.writeUTF("AUTENTICAÇÃO");
+                            writeSocket.writeUTF("login");
                             writeSocket.flush();
                             //Enviar dados para o servidor -> Username
                             writeSocket.writeUTF(username);
@@ -80,12 +83,49 @@ public class ThreadClientInput implements Runnable{
                                 AuthenticationSingleton.getInstance().setUsername(username);
                             }
                         }
+                    } else if (menu.getOpcao() == 2){
+                        String password = null;
+                        String username = null;
+                        boolean isAdmin = false;
+                        try {
+                            System.out.println("\nInsira o seu nome de utilizador: ");
+                            username = stringIn.readLine();
+                            System.out.println("Insira a sua password: ");
+                            password = stringIn.readLine();
+                            System.out.println("É admin? 1 se sim, qualquer outra coisa se não!");
+                            isAdmin = stringIn.readLine().equals("1") ? true : false;
+                        } catch (InputMismatchException e) {
+                            System.out.println(e.toString());
+                        }
+                        System.out.println("Registo");
+                        writeSocket.writeUTF("Registo");
+                        writeSocket.flush();
+                        //Enviar dados para o servidor -> Username
+                        System.out.println(username);
+                        writeSocket.writeUTF(username);
+                        writeSocket.flush();
+                        //Enviar dados para o servidor -> Password
+                        System.out.println(password);
+                        writeSocket.writeUTF(password);
+                        writeSocket.flush();
+                        //Enviar isAdmin
+                        System.out.println(isAdmin);
+                        writeSocket.writeBoolean(isAdmin);
+                        writeSocket.flush();
+                        //Aguardar resposta do servidor
+                        lock.lock();
+                        cond.await();
+                        lock.unlock();
+                    } else if(menu.getOpcao() == 0) {
+                        break;
                     }
                 } else {
                     if (AuthenticationSingleton.getInstance().isAdmin()){
                         Menu menu = new Menu(opcoes3);
                         menu.execute();
-                        switch(menu.getOpcao()){
+                        int k = menu.getOpcao();
+                        if(k == 0) break;
+                        switch(k){
                             case 1:
                                 System.out.println("Qual a cidade de origem?");
                                 String origin = stringIn.readLine();
@@ -120,7 +160,10 @@ public class ThreadClientInput implements Runnable{
 
                         Menu menu = new Menu(opcoes2);
                         menu.execute();
-                        switch(menu.getOpcao()){
+                        int k = menu.getOpcao();
+                        if(k == 0) break;
+
+                        switch(k){
                             case 1: //Pode comprar 1 voo para já, alterar para poder enviar vários voos
                                 System.out.println("Qual a cidade de origem?");
                                 String origin = stringIn.readLine();

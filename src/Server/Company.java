@@ -15,7 +15,6 @@ public class Company {
 
     List<Flight> recurrentFlights = null;
     Map<LocalDate, Day> flightCalendar = null;
-    Map<String, User> userMap = null;
     List<Reservation> reservationList = null;
     ReentrantLock lock = new ReentrantLock();
     //Para segurança, quando há um login, gerar um inteiro random, enviado para o cliente e cada request tem que trazer esse inteiro
@@ -23,35 +22,13 @@ public class Company {
     public Company(){
         recurrentFlights = new ArrayList<>();
         flightCalendar = new HashMap<>();
-        userMap = new HashMap<>();
         reservationList = new ArrayList<>();
-    }
-
-    /* Authentication */
-    public void signUp(String username, String password) {
-        if (userMap.containsKey(username)) {
-            //Username já existe
-        } else {
-            userMap.put(username, new User(username, password));
-        }
-    }
-
-    public void signIn(String username, String password){
-        if (userMap.containsKey(username)){
-            if(userMap.get(username).checkPassword(password)){
-                //User validado
-            }else{
-                //Password incorreta
-            }
-        } else {
-            //User não encontrado
-        }
     }
 
     /* Admin */
 
-    public void addNewRecurrentFlight(String code, String departureCity, String arrivalCity, int capacity, int takenPlaces){
-        Flight f = new Flight(code,departureCity,arrivalCity,capacity,takenPlaces);
+    public void addNewRecurrentFlight(String code, String departureCity, String arrivalCity, int capacity){
+        Flight f = new Flight(code,departureCity,arrivalCity,capacity,0);
         recurrentFlights.add(f); //Adiciona aos futuros dias
         //Adiciona aos atuais dias já criados
         for(LocalDate dateN : flightCalendar.keySet()){
@@ -72,6 +49,19 @@ public class Company {
 
 
     /* Client */
+
+    public void makeReservationUniqueFlight(Pair<Pair<String,String>,LocalDate> flight){
+        if(!flightIsRecurrent(flight.getKey().getKey(),flight.getKey().getValue())
+                && (!flightCalendar.containsKey(flight.getValue())
+                || !flightCalendar.get(flight.getValue()).flightFull(flight.getKey().getKey(),flight.getKey().getValue()))){
+            return;
+        }
+
+        if(!flightCalendar.containsKey(flight.getValue())){
+            flightCalendar.put(flight.getValue(),new Day(flight.getValue(), recurrentFlights));
+        }
+        flightCalendar.get(flight.getValue()).buyTicket(flight.getKey().getKey(),flight.getKey().getValue());
+    }
 
     // (("Porto","Lisboa"),21-01-2022) -> Precisamos dum lock
     public boolean makeReservation(List<Pair<Pair<String,String>,LocalDate>> flights) {
