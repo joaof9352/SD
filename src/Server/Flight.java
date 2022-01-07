@@ -2,12 +2,15 @@ package Server;
 
 import Server.Exceptions.FlightIsFullException;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Flight {
 
     private String code;
     private String departureCity, arrivalCity;
     private int capacity;
     private int takenPlaces;
+    private ReentrantLock lock = new ReentrantLock();
 
     public Flight(String code, String departureCity, String arrivalCity, int capacity, int takenPlaces){
 
@@ -38,15 +41,21 @@ public class Flight {
         return departureCity.equals(this.getDepartureCity()) && arrivalCity.equals(this.getArrivalCity());
     }
 
-    public boolean FlightFull(){
-        return takenPlaces == capacity;
+    public boolean flightFull(){
+        try{
+            lock.lock();
+            return takenPlaces == capacity;
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public void buyTicket() throws FlightIsFullException {
-        if(!this.FlightFull()){
+    public void buyTicket() {
+        try{
+            lock.lock();
             this.takenPlaces++;
-        }else{
-            throw new FlightIsFullException();
+        } finally {
+            lock.unlock();
         }
     }
 

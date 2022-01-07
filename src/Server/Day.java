@@ -34,10 +34,21 @@ public class Day {
         graph.get(f.getDepartureCity()).add(new Node(f));
     }
 
-    public void buyTicket(String departure, String arrival) throws FlightIsFullException {
+    public void buyTicket(String departure, String arrival) {
         for(Node n : graph.get(departure)){
             n.getFlight().buyTicket();
         }
+    }
+
+
+    public boolean flightFull(String origin, String destination){
+        boolean flightIsFull = true;
+        for(Node n : graph.get(origin)){
+            if(n.getDestination().equals(destination))
+                flightIsFull = n.getFlight().flightFull();
+        }
+
+        return flightIsFull;
     }
 
     @Override
