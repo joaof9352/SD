@@ -53,31 +53,35 @@ public class Company {
     /* Client */
 
     // (("Porto","Lisboa"),21-01-2022) -> Precisamos dum lock
-    public int makeReservation(String username, List<Pair<String,String>> flights, LocalDate start, LocalDate end) throws ImpossibleReservationException, NoFlightFoundException, DayClosedException {
+    public int makeReservation(String username, List<Pair<String,String>> flights, LocalDate start, LocalDate end) throws ImpossibleReservationException, NoFlightFoundException, DayClosedException, InterruptedException {
 
         LocalDate actual = start;
         // [(("Porto","Lisboa"),23-10-2021),...]
         List<Pair<Pair<String,String>,LocalDate>> reservations = new ArrayList<>();
-
+        System.out.println("Passei aqui!");
         /* Estratégia:
             1. Ir a todos os voos e testar a primeira data. Se der, ok! Se não der: ciclo que testa todas as datas possíveis entre as dadas. Se der, ok, se não der, retorna erro.
                 -> A cada interação do ciclo que funcionar, adicionar a uma lista o voo e a data a que terá de ser comprado
          */
 
         for(Pair<String,String> flight : flights ){
-
+            System.out.println("1");
             //Se o voo não existe, então não continuamos
             if(!flightIsRecurrent(flight.getKey(),flight.getValue())){
                 System.out.println("Não é recurrent!");
                 throw new NoFlightFoundException();
             }
+            System.out.println("2");
             boolean flightReserved = false;
             while(!flightReserved && actual.isBefore(end) ){
+                System.out.println("3");
                 //Se não existir o Dia ou o Dia estiver aberto seguimos, caso contrário vemos o dia seguinte
                 if(!flightCalendar.containsKey(actual) || flightCalendar.get(actual).isOpen()){
                     //Se o voo não estiver cheio, adicionamos aos voos a reservar, caso contrário vemos o dia seguinte
-                    if(!flightCalendar.get(actual).flightFull(flight.getKey(),flight.getValue())){
+                    if(!flightCalendar.containsKey(actual) || !flightCalendar.get(actual).flightFull(flight.getKey(),flight.getValue())){
+                        System.out.println("Adicionado à lista.");
                         reservations.add(new Pair(new Pair(flight.getKey(),flight.getValue()),actual));
+                        flightReserved = true;
                     } else {
                         System.out.println("+1 dia pq voo cheio");
                         actual.plusDays(1);
@@ -87,6 +91,7 @@ public class Company {
                     actual.plusDays(1);
                 }
             }
+            System.out.println("4");
             //Se o dia atual já é depois do último dia possível de reserva para o cliente, então a reserva é impossível
             if(!actual.isBefore(end)) {
                 System.out.println("passou dia atual");
@@ -103,5 +108,12 @@ public class Company {
         System.out.println("Eu estou aqui!");
         reservationList.add(new Reservation(username,reservations));
         return reservationList.size()-1;
+    }
+
+    public void closeDay(LocalDate day){
+        if(!flightCalendar.containsKey(day)){
+            flightCalendar.put(day,new Day(day, recurrentFlights));
+        }
+        flightCalendar.get(day).setOpen(false);
     }
 }

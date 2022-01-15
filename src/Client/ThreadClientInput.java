@@ -31,7 +31,8 @@ public class ThreadClientInput implements Runnable{
     private static String[] opcoes3 = { // Administrador
             "Adicionar um novo voo", //1
             "Ver todos os voos diretos", //2
-            "Ver todos os voos possíveis até 2 escalas" //3
+            "Ver todos os voos possíveis até 2 escalas", //3
+            "Bloquear um dia" //4
     };
 
     public ThreadClientInput (Socket s, ReentrantLock l, Condition c){
@@ -152,6 +153,21 @@ public class ThreadClientInput implements Runnable{
                             case 3:
                                 writeSocket.writeUTF("TodosVoos");
                                 writeSocket.flush();
+                                lock.lock();
+                                cond.await();
+                                lock.unlock();
+                                break;
+                            case 4:
+                                System.out.println("Dia a bloquear:");
+                                String dia = stringIn.readLine();
+                                System.out.println("Mês do dia a bloquear:");
+                                String mes = stringIn.readLine();
+                                System.out.println("Ano do dia a bloquear:");
+                                String ano = stringIn.readLine();
+                                writeSocket.writeUTF("BloquearDia"); writeSocket.flush();
+                                writeSocket.writeInt(Integer.parseInt(ano)); writeSocket.flush();
+                                writeSocket.writeInt(Integer.parseInt(mes)); writeSocket.flush();
+                                writeSocket.writeInt(Integer.parseInt(dia)); writeSocket.flush();
                                 lock.lock();
                                 cond.await();
                                 lock.unlock();

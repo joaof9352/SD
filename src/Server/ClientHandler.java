@@ -27,12 +27,9 @@ public class ClientHandler implements Runnable{
             this.company = c;
             this.readSocket = new DataInputStream(new BufferedInputStream(s.getInputStream()));
             this.writeSocket = new DataOutputStream(s.getOutputStream());
-
-            System.out.println("1");
         }
 
         public void run(){
-            System.out.println("2");
             try{
                 String input;
                 while((input = readSocket.readUTF()) != null) {
@@ -73,14 +70,13 @@ public class ClientHandler implements Runnable{
                             writeSocket.writeUTF("ERRO: Password incorreta");
                         }
                     } else if(input.equals("NovaCompra")){
-                        String line = "";
                         List<String> airports = new ArrayList<>();
 
                         String user = readSocket.readUTF();
-
+                        String line = readSocket.readUTF();
                         while(!line.equals("FIN")){
-                            line = readSocket.readUTF();
                             airports.add(line);
+                            line = readSocket.readUTF();
                         }
                         System.out.println("passei");
                         LocalDate start = LocalDate.of(readSocket.readInt(),readSocket.readInt(), readSocket.readInt());
@@ -94,9 +90,14 @@ public class ClientHandler implements Runnable{
 
                         } catch (Exception e) {
                             writeSocket.writeUTF("ERRO: Reserva impossível.");
+                            e.printStackTrace();
                         } finally {
                             writeSocket.flush();
                         }
+                    } else if(input.equals("BloquearDia")){
+                        LocalDate bloq = LocalDate.of(readSocket.readInt(), readSocket.readInt(), readSocket.readInt());
+                        company.closeDay(bloq);
+                        writeSocket.writeUTF("Dia bloqueado: " + bloq.toString());
                     }
                 }
             } catch (Exception e) {

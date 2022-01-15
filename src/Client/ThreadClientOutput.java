@@ -34,10 +34,10 @@ public class ThreadClientOutput implements Runnable{
                 } else if(line.equals("Sessão iniciada como Admin!")){
                     System.out.println("Sessão iniciada!");
                     this.lock.lock();
-                    cond.signal();
-                    this.lock.unlock();
                     AuthenticationSingleton.getInstance().setAuthenticated(true);
                     AuthenticationSingleton.getInstance().setAdmin(true);
+                    cond.signal();
+                    this.lock.unlock();
                 } else if(line.equals("Sessão iniciada!")){
                     System.out.println("Sessão iniciada!");
                     this.lock.lock();
@@ -48,7 +48,7 @@ public class ThreadClientOutput implements Runnable{
 
                 } else if(line.equals("ERRO: Username não existe") || line.equals("ERRO: Password incorreta")
                           || line.startsWith("Reserva efetuada com código de reserva")
-                          || line.equals("Reserva cancelada") || line.equals("ERRO: Reserva impossível.")){ //Erro ao iniciar sessão
+                          || line.startsWith("Dia bloqueado: ") || line.equals("ERRO: Reserva impossível.")){ //Erro ao iniciar sessão
                     System.out.println(line);
                     this.lock.lock();
                     cond.signal();
