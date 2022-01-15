@@ -2,7 +2,9 @@ package Client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -45,11 +47,10 @@ public class ThreadClientInput implements Runnable{
     }
 
     public void run() {
-        String input;
         int i = 1;
         boolean authenticated = false;
         try {
-            while(i == 1){
+            while(true){
                 if (!(AuthenticationSingleton.getInstance().isAuthenticated()) ) {
                     Menu menu = new Menu(opcoes1);
                     menu.execute();
@@ -165,22 +166,50 @@ public class ThreadClientInput implements Runnable{
 
                         switch(k){
                             case 1: //Pode comprar 1 voo para já, alterar para poder enviar vários voos
-                                System.out.println("Qual a cidade de origem?");
-                                String origin = stringIn.readLine();
-                                System.out.println("Qual a cidade de destino?");
-                                String destination = stringIn.readLine();
-                                System.out.println("Dia da viagem:");
-                                String dia = stringIn.readLine();
-                                System.out.println("Mês da viagem:");
-                                String mes = stringIn.readLine();
-                                System.out.println("Ano da viagem:");
-                                String ano = stringIn.readLine();
-                                writeSocket.writeUTF("NovaCompra");
-                                writeSocket.writeUTF(origin); writeSocket.flush();
-                                writeSocket.writeUTF(destination); writeSocket.flush();
-                                writeSocket.writeInt(Integer.parseInt(dia)); writeSocket.flush();
-                                writeSocket.writeInt(Integer.parseInt(mes)); writeSocket.flush();
-                                writeSocket.writeInt(Integer.parseInt(ano)); writeSocket.flush();
+                                List<String> airports = new ArrayList<>();
+                                System.out.println("Introduza o número de voos que quer comprar: ");
+                                int numberOfFlights = Integer.parseInt(stringIn.readLine());
+                                if(numberOfFlights < 1){
+                                    System.out.println("Erro: Número de voos tem de ser positivo.");
+                                } else {
+                                    int j = 0;
+
+                                    while (j < numberOfFlights+1) {
+                                        System.out.println("Introduza a cidade seguinte:");
+                                        airports.add(stringIn.readLine());
+                                        j++;
+                                    }
+
+                                    System.out.println("Dia mínimo da viagem:");
+                                    String dia = stringIn.readLine();
+                                    System.out.println("Mês mínimo da viagem:");
+                                    String mes = stringIn.readLine();
+                                    System.out.println("Ano mínimo da viagem:");
+                                    String ano = stringIn.readLine();
+                                    System.out.println("Dia máximo da viagem:");
+                                    String diaMax = stringIn.readLine();
+                                    System.out.println("Mês máximo da viagem:");
+                                    String mesMax = stringIn.readLine();
+                                    System.out.println("Ano máximo da viagem:");
+                                    String anoMax = stringIn.readLine();
+                                    writeSocket.writeUTF("NovaCompra");
+
+                                    writeSocket.writeUTF(AuthenticationSingleton.getInstance().getUsername());
+                                    j=0;
+                                    while (j < numberOfFlights+1) {
+                                        writeSocket.writeUTF(airports.get(j)); writeSocket.flush();
+                                        j++;
+                                    }
+                                    writeSocket.writeUTF("FIN"); writeSocket.flush();
+
+                                    writeSocket.writeInt(Integer.parseInt(ano)); writeSocket.flush();
+                                    writeSocket.writeInt(Integer.parseInt(mes)); writeSocket.flush();
+                                    writeSocket.writeInt(Integer.parseInt(dia)); writeSocket.flush();
+
+                                    writeSocket.writeInt(Integer.parseInt(anoMax)); writeSocket.flush();
+                                    writeSocket.writeInt(Integer.parseInt(mesMax)); writeSocket.flush();
+                                    writeSocket.writeInt(Integer.parseInt(diaMax)); writeSocket.flush();
+                                }
                                 break;
                             case 2:
                                 System.out.println("Qual o código da reserva que quer cancelar?");

@@ -41,13 +41,14 @@ public class ThreadClientOutput implements Runnable{
                 } else if(line.equals("Sessão iniciada!")){
                     System.out.println("Sessão iniciada!");
                     this.lock.lock();
+                    AuthenticationSingleton.getInstance().setAuthenticated(true);
                     cond.signal();
                     this.lock.unlock();
-                    AuthenticationSingleton.getInstance().setAuthenticated(true);
+
 
                 } else if(line.equals("ERRO: Username não existe") || line.equals("ERRO: Password incorreta")
-                          || line.startsWith("Compra efetuada com código de reserva")
-                          || line.equals("Reserva cancelada")){ //Erro ao iniciar sessão
+                          || line.startsWith("Reserva efetuada com código de reserva")
+                          || line.equals("Reserva cancelada") || line.equals("ERRO: Reserva impossível.")){ //Erro ao iniciar sessão
                     System.out.println(line);
                     this.lock.lock();
                     cond.signal();

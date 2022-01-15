@@ -1,8 +1,10 @@
 package Server;
 
+import Server.Exceptions.DayClosedException;
 import Server.Exceptions.FlightIsFullException;
+import Server.Exceptions.ImpossibleReservationException;
 import Server.Exceptions.NoFlightFoundException;
-import javafx.util.Pair;
+import Server.Pair;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,47 +52,56 @@ public class Company {
 
     /* Client */
 
-    public void makeReservationUniqueFlight(Pair<Pair<String,String>,LocalDate> flight){
-        if(!flightIsRecurrent(flight.getKey().getKey(),flight.getKey().getValue())
-                && (!flightCalendar.containsKey(flight.getValue())
-                || !flightCalendar.get(flight.getValue()).flightFull(flight.getKey().getKey(),flight.getKey().getValue()))){
-            return;
-        }
-
-        if(!flightCalendar.containsKey(flight.getValue())){
-            flightCalendar.put(flight.getValue(),new Day(flight.getValue(), recurrentFlights));
-        }
-        flightCalendar.get(flight.getValue()).buyTicket(flight.getKey().getKey(),flight.getKey().getValue());
-    }
-
     // (("Porto","Lisboa"),21-01-2022) -> Precisamos dum lock
-    public boolean makeReservation(List<Pair<Pair<String,String>,LocalDate>> flights) {
+    public int makeReservation(String username, List<Pair<String,String>> flights, LocalDate start, LocalDate end) throws ImpossibleReservationException, NoFlightFoundException, DayClosedException {
 
-        boolean flightsExist = true;
+        LocalDate actual = start;
+        // [(("Porto","Lisboa"),23-10-2021),...]
+        List<Pair<Pair<String,String>,LocalDate>> reservations = new ArrayList<>();
 
-        //Verifica que todos os voos existem e que tem lugares
-        for(Pair<Pair<String,String>,LocalDate> flight : flights ){
-            if(!flightIsRecurrent(flight.getKey().getKey(),flight.getKey().getValue())
-                && (!flightCalendar.containsKey(flight.getValue())
-                    || !flightCalendar.get(flight.getValue()).flightFull(flight.getKey().getKey(),flight.getKey().getValue()))){
-                flightsExist = false;
+        /* Estratégia:
+            1. Ir a todos os voos e testar a primeira data. Se der, ok! Se não der: ciclo que testa todas as datas possíveis entre as dadas. Se der, ok, se não der, retorna erro.
+                -> A cada interação do ciclo que funcionar, adicionar a uma lista o voo e a data a que terá de ser comprado
+         */
+
+        for(Pair<String,String> flight : flights ){
+
+            //Se o voo não existe, então não continuamos
+            if(!flightIsRecurrent(flight.getKey(),flight.getValue())){
+                System.out.println("Não é recurrent!");
+                throw new NoFlightFoundException();
+            }
+            boolean flightReserved = false;
+            while(!flightReserved && actual.isBefore(end) ){
+                //Se não existir o Dia ou o Dia estiver aberto seguimos, caso contrário vemos o dia seguinte
+                if(!flightCalendar.containsKey(actual) || flightCalendar.get(actual).isOpen()){
+                    //Se o voo não estiver cheio, adicionamos aos voos a reservar, caso contrário vemos o dia seguinte
+                    if(!flightCalendar.get(actual).flightFull(flight.getKey(),flight.getValue())){
+                        reservations.add(new Pair(new Pair(flight.getKey(),flight.getValue()),actual));
+                    } else {
+                        System.out.println("+1 dia pq voo cheio");
+                        actual.plusDays(1);
+                    }
+                } else {
+                    System.out.println("+1 dia pq dia está fechado ou flightCalendar containsKey");
+                    actual.plusDays(1);
+                }
+            }
+            //Se o dia atual já é depois do último dia possível de reserva para o cliente, então a reserva é impossível
+            if(!actual.isBefore(end)) {
+                System.out.println("passou dia atual");
+                throw new ImpossibleReservationException();
             }
         }
 
-        //Se 1 ou + voos não existir, retorna um erro para o cliente
-        if(!flightsExist){
-            //Enviar erro para cliente
-            return false;
-        }
-
-        for(Pair<Pair<String,String>,LocalDate> flight : flights ){
+        for(Pair<Pair<String,String>,LocalDate> flight : reservations ){
             if(!flightCalendar.containsKey(flight.getValue())){
                 flightCalendar.put(flight.getValue(),new Day(flight.getValue(), recurrentFlights));
             }
             flightCalendar.get(flight.getValue()).buyTicket(flight.getKey().getKey(),flight.getKey().getValue());
         }
-
-        
-        return true;
+        System.out.println("Eu estou aqui!");
+        reservationList.add(new Reservation(username,reservations));
+        return reservationList.size()-1;
     }
 }

@@ -1,14 +1,19 @@
 package Server;
 
+import Server.Exceptions.ImpossibleReservationException;
 import Server.Exceptions.IncorrectPasswordException;
 import Server.Exceptions.UserAlreadyExistsException;
 import Server.Exceptions.UserNotFoundException;
+import javafx.util.Pair;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHandler implements Runnable{
 
@@ -66,6 +71,31 @@ public class ClientHandler implements Runnable{
                             writeSocket.writeUTF("ERRO: Username não existe");
                         } catch (IncorrectPasswordException e) {
                             writeSocket.writeUTF("ERRO: Password incorreta");
+                        }
+                    } else if(input.equals("NovaCompra")){
+                        String line = "";
+                        List<String> airports = new ArrayList<>();
+
+                        String user = readSocket.readUTF();
+
+                        while(!line.equals("FIN")){
+                            line = readSocket.readUTF();
+                            airports.add(line);
+                        }
+                        System.out.println("passei");
+                        LocalDate start = LocalDate.of(readSocket.readInt(),readSocket.readInt(), readSocket.readInt());
+                        LocalDate end = LocalDate.of(readSocket.readInt(), readSocket.readInt(), readSocket.readInt());
+                        System.out.println("passei x2");
+                        AuxReservation aux = new AuxReservation(user,airports,start,end);
+
+                        try{
+                            int reservationID = company.makeReservation(aux.getUsername(), aux.getFlights(), aux.getDataInicio(), aux.getDataFinal());
+                            writeSocket.writeUTF("Reserva efetuada com código de reserva " + reservationID);
+
+                        } catch (Exception e) {
+                            writeSocket.writeUTF("ERRO: Reserva impossível.");
+                        } finally {
+                            writeSocket.flush();
                         }
                     }
                 }

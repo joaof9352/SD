@@ -1,5 +1,6 @@
 package Server;
 
+import Server.Exceptions.DayClosedException;
 import Server.Exceptions.FlightIsFullException;
 
 import java.time.LocalDate;
@@ -12,10 +13,12 @@ public class Day {
 
     LocalDate day;
     Map<String,List<Node>> graph = null;
+    private boolean isOpen;
 
     public Day(LocalDate day){
         this.day = day;
         graph = new HashMap<>();
+        isOpen = true;
     }
 
     public Day(LocalDate day, List<Flight> flightList){
@@ -24,9 +27,13 @@ public class Day {
         for(Flight f : flightList){
             addFlight(f.clone());
         }
+        this.isOpen = true;
     }
 
     public void addFlight(Flight f){
+
+        if(!this.isOpen)
+
         if(!graph.containsKey(f.getDepartureCity())){
             graph.put(f.getDepartureCity(), new ArrayList<>());
         }
@@ -34,7 +41,10 @@ public class Day {
         graph.get(f.getDepartureCity()).add(new Node(f));
     }
 
-    public void buyTicket(String departure, String arrival) {
+    public void buyTicket(String departure, String arrival) throws DayClosedException {
+        if(!isOpen()){
+            throw new DayClosedException();
+        }
         for(Node n : graph.get(departure)){
             n.getFlight().buyTicket();
         }
@@ -59,5 +69,9 @@ public class Day {
                 sb.append(n.toString());
         }
         return sb.toString();
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 }

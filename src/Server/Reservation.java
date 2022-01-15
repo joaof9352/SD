@@ -1,6 +1,6 @@
 package Server;
 
-import javafx.util.Pair;
+import Server.Pair;
 
 import java.time.LocalDate;
 import java.util.List;
