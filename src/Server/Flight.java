@@ -12,6 +12,11 @@ public class Flight {
     private int takenPlaces;
     private ReentrantLock lock = new ReentrantLock();
 
+    @Override
+    public String toString() {
+        return code + ": " + departureCity + " -> " + arrivalCity;
+    }
+
     public Flight(String code, String departureCity, String arrivalCity, int capacity, int takenPlaces){
 
         this.code = code;

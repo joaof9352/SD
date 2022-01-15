@@ -21,6 +21,15 @@ public class Company {
     ReentrantLock lock = new ReentrantLock();
     //Para segurança, quando há um login, gerar um inteiro random, enviado para o cliente e cada request tem que trazer esse inteiro
 
+    public String getAllFlights(){
+        StringBuilder sb = new StringBuilder();
+        for(Flight f : recurrentFlights){
+            sb.append(f.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
     public Company(){
         recurrentFlights = new ArrayList<>();
         flightCalendar = new HashMap<>();

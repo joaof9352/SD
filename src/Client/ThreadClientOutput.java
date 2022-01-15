@@ -53,7 +53,7 @@ public class ThreadClientOutput implements Runnable{
                     this.lock.lock();
                     cond.signal();
                     this.lock.unlock();
-                } else if(line.equals("Todos os voos até 2 escalas: ") || line.equals("Todos os voos disponíveis: ")) {
+                } else if(line.equals("Todos os voos até 2 escalas: ")) {
                     this.lock.lock();
                     System.out.println(line);
                     while (!(line = readSocket.readUTF()).equals("FIM")) {
@@ -61,7 +61,7 @@ public class ThreadClientOutput implements Runnable{
                     }
                     cond.signal();
                     this.lock.unlock();
-                } else if (line.startsWith("Reserva num. ")){
+                } else if (line.startsWith("Reserva num. ") || line.equals("Todos os voos disponíveis: ")) {
                     System.out.println(line);
                     System.out.println(readSocket.readUTF());
                     this.lock.lock();

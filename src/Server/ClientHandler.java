@@ -109,6 +109,10 @@ public class ClientHandler implements Runnable{
                         }
 
                         writeSocket.flush();
+                    } else if (input.equals("TodosVoos")){
+                        writeSocket.writeUTF("Todos os voos disponíveis: ");
+                        writeSocket.writeUTF(company.getAllFlights());
+                        writeSocket.flush();
                     }
                 }
             } catch (Exception e) {
