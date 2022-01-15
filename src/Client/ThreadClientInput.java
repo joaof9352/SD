@@ -26,7 +26,8 @@ public class ThreadClientInput implements Runnable{
             "Reservar um Voo", // 1
             "Cancelar uma reserva", // 2
             "Ver todos os voos diretos", //3
-            "Ver todos os voos possíveis até 2 escalas" //4
+            "Ver todos os voos possíveis até 2 escalas", //4
+            "Consultar reserva" //5
     };
     private static String[] opcoes3 = { // Administrador
             "Adicionar um novo voo", //1
@@ -238,6 +239,13 @@ public class ThreadClientInput implements Runnable{
                             case 4:
                                 writeSocket.writeUTF("TodosVoosEscalas"); writeSocket.flush();
                                 System.out.println("Todos os voos disponíveis: ");
+                                break;
+                            case 5:
+                                System.out.println("Qual a reserva que quer consultar?");
+                                int reservID = Integer.parseInt(stringIn.readLine());
+                                writeSocket.writeUTF("ConsultarReserva");
+                                writeSocket.writeUTF(AuthenticationSingleton.getInstance().getUsername());
+                                writeSocket.writeInt(reservID);
                                 break;
                         }
                         lock.lock();

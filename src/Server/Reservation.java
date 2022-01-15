@@ -16,9 +16,28 @@ public class Reservation {
         this.flights = flights;
     }
 
+    public boolean ownsReservation(String username){
+        return this.username.equals(username);
+    }
+
     public List<Pair<Pair<String,String>, LocalDate>> getFlights() {
         return flights;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(username + ": \n");
+        for(Pair<Pair<String,String>, LocalDate> flight : flights){
+            sb.append("\t");
+            sb.append(flight.getValue());
+            sb.append(": ");
+            sb.append(flight.getKey().getKey());
+            sb.append(" -> ");
+            sb.append(flight.getKey().getValue());
+            sb.append("\n");
+        }
 
+        return sb.toString();
+    }
 }

@@ -98,6 +98,17 @@ public class ClientHandler implements Runnable{
                         LocalDate bloq = LocalDate.of(readSocket.readInt(), readSocket.readInt(), readSocket.readInt());
                         company.closeDay(bloq);
                         writeSocket.writeUTF("Dia bloqueado: " + bloq.toString());
+                    } else if(input.equals("ConsultarReserva")) {
+                        String username = readSocket.readUTF();
+                        int reservationID = readSocket.readInt();
+                        if(company.ownsReservation(username,reservationID)){
+                            writeSocket.writeUTF("Reserva num. " + reservationID + "\n");
+                            writeSocket.writeUTF(company.getReservation(reservationID).toString());
+                        } else {
+                            writeSocket.writeUTF("ERRO: A reserva não lhe pertence.");
+                        }
+
+                        writeSocket.flush();
                     }
                 }
             } catch (Exception e) {

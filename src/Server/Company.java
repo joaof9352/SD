@@ -15,9 +15,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Company {
 
-    List<Flight> recurrentFlights = null;
-    Map<LocalDate, Day> flightCalendar = null;
-    List<Reservation> reservationList = null;
+    private List<Flight> recurrentFlights = null;
+    private Map<LocalDate, Day> flightCalendar = null;
+    private List<Reservation> reservationList = null;
     ReentrantLock lock = new ReentrantLock();
     //Para segurança, quando há um login, gerar um inteiro random, enviado para o cliente e cada request tem que trazer esse inteiro
 
@@ -115,5 +115,13 @@ public class Company {
             flightCalendar.put(day,new Day(day, recurrentFlights));
         }
         flightCalendar.get(day).setOpen(false);
+    }
+
+    public boolean ownsReservation(String username, int reservationId){
+        return reservationList.get(reservationId).ownsReservation(username);
+    }
+
+    public Reservation getReservation(int reservationID){
+        return reservationList.get(reservationID);
     }
 }

@@ -45,10 +45,10 @@ public class ThreadClientOutput implements Runnable{
                     cond.signal();
                     this.lock.unlock();
 
-
                 } else if(line.equals("ERRO: Username não existe") || line.equals("ERRO: Password incorreta")
                           || line.startsWith("Reserva efetuada com código de reserva")
-                          || line.startsWith("Dia bloqueado: ") || line.equals("ERRO: Reserva impossível.")){ //Erro ao iniciar sessão
+                          || line.startsWith("Dia bloqueado: ") || line.equals("ERRO: Reserva impossível.")
+                          || line.equals("ERRO: A reserva não lhe pertence.")){ //Erro ao iniciar sessão
                     System.out.println(line);
                     this.lock.lock();
                     cond.signal();
@@ -60,6 +60,12 @@ public class ThreadClientOutput implements Runnable{
                         System.out.println(line);
                     }
                     cond.signal();
+                    this.lock.unlock();
+                } else if (line.startsWith("Reserva num. ")){
+                    System.out.println(line);
+                    System.out.println(readSocket.readUTF());
+                    this.lock.lock();
+                    this.cond.signal();
                     this.lock.unlock();
                 }
             }
