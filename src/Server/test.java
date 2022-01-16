@@ -16,7 +16,6 @@ public class test {
         c.addNewRecurrentFlight("0002","Porto", "Faro", 1);
         c.addNewRecurrentFlight("0003","Lisboa", "Faro", 1);
         c.addNewRecurrentFlight("0004", "Faro","Lisboa",1);
-        LocalDate date = LocalDate.of(2022,01,03);
         UserListSingleton.getInstance().signUp("admin","admin",true);
         UserListSingleton.getInstance().signUp("user","user",false);
         UserListSingleton.getInstance().signUp("user2","user2",false);

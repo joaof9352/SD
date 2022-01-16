@@ -132,9 +132,11 @@ public class ClientHandler implements Runnable{
                         String username = readSocket.readUTF();
                         int reservationID = readSocket.readInt();
                         try {
+                            System.out.println(username + " " + reservationID);
                             company.cancelReservation(reservationID, username);
                             writeSocket.writeUTF("A reserva foi anulada com sucesso!");
                         } catch (Exception e) {
+                            e.printStackTrace();
                             writeSocket.writeUTF("ERRO: Reserva não cancelada.");
                         } finally {
                             writeSocket.flush();

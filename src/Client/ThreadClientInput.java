@@ -57,34 +57,33 @@ public class ThreadClientInput implements Runnable{
                     Menu menu = new Menu(opcoes1);
                     menu.execute();
                     if(menu.getOpcao() == 1){
-                        while (!(AuthenticationSingleton.getInstance().isAuthenticated())) {
-                            String password = null;
-                            String username = null;
-                            try {
-                                System.out.print("\nInsira o seu nome de utilizador: ");
-                                username = stringIn.readLine();
-                                System.out.print("Insira a sua password: ");
-                                password = stringIn.readLine();
-                            } catch (InputMismatchException e) {
-                                System.out.println(e.toString());
-                            }
-                            writeSocket.writeUTF("login");
-                            writeSocket.flush();
-                            //Enviar dados para o servidor -> Username
-                            writeSocket.writeUTF(username);
-                            writeSocket.flush();
-                            //Enviar dados para o servidor -> Password
-                            writeSocket.writeUTF(password);
-                            writeSocket.flush();
-                            //Aguardar resposta do servidor
-                            lock.lock();
-                            cond.await();
-                            lock.unlock();
 
-                            if (AuthenticationSingleton.getInstance().isAuthenticated()) {
-                                AuthenticationSingleton.getInstance().setPassword(password);
-                                AuthenticationSingleton.getInstance().setUsername(username);
-                            }
+                        String password = null;
+                        String username = null;
+                        try {
+                            System.out.print("\nInsira o seu nome de utilizador: ");
+                            username = stringIn.readLine();
+                            System.out.print("Insira a sua password: ");
+                            password = stringIn.readLine();
+                        } catch (InputMismatchException e) {
+                            System.out.println(e.toString());
+                        }
+                        writeSocket.writeUTF("login");
+                        writeSocket.flush();
+                        //Enviar dados para o servidor -> Username
+                        writeSocket.writeUTF(username);
+                        writeSocket.flush();
+                        //Enviar dados para o servidor -> Password
+                        writeSocket.writeUTF(password);
+                        writeSocket.flush();
+                        //Aguardar resposta do servidor
+                        lock.lock();
+                        cond.await();
+                        lock.unlock();
+
+                        if (AuthenticationSingleton.getInstance().isAuthenticated()) {
+                            AuthenticationSingleton.getInstance().setPassword(password);
+                            AuthenticationSingleton.getInstance().setUsername(username);
                         }
                     } else if (menu.getOpcao() == 2){
                         String password = null;
@@ -147,6 +146,9 @@ public class ThreadClientInput implements Runnable{
                                 writeSocket.flush();
                                 writeSocket.writeInt(Integer.parseInt(capacidade));
                                 writeSocket.flush();
+                                lock.lock();
+                                cond.await();
+                                lock.unlock();
                                 break;
                             case 2:
                                 writeSocket.writeUTF("TodosVoos");
@@ -234,8 +236,11 @@ public class ThreadClientInput implements Runnable{
                                 break;
                             case 2:
                                 System.out.println("Qual o código da reserva que quer cancelar?");
+                                int reservationID = Integer.parseInt(stringIn.readLine());
                                 writeSocket.writeUTF("CancelaReserva"); writeSocket.flush();
-                                writeSocket.writeUTF(stringIn.readLine()); writeSocket.flush();
+                                writeSocket.writeUTF(AuthenticationSingleton.getInstance().getUsername()); writeSocket.flush();
+                                writeSocket.writeInt(reservationID); writeSocket.flush();
+                                break;
                             case 3:
                                 writeSocket.writeUTF("TodosVoos"); writeSocket.flush();
                                 break;

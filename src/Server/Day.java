@@ -8,12 +8,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Day {
 
     LocalDate day;
     Map<String,List<Node>> graph = null;
     private boolean isOpen;
+    ReentrantLock lock = new ReentrantLock();
+    ReentrantLock mainLock;
 
     public Day(LocalDate day){
         this.day = day;
@@ -21,13 +24,14 @@ public class Day {
         isOpen = true;
     }
 
-    public Day(LocalDate day, List<Flight> flightList){
+    public Day(LocalDate day, List<Flight> flightList, ReentrantLock mainLock){
         this.day = day;
         this.graph = new HashMap<>();
         for(Flight f : flightList){
             addFlight(f.clone());
         }
         this.isOpen = true;
+        this.mainLock = mainLock;
     }
 
     public void addFlight(Flight f){
@@ -74,11 +78,14 @@ public class Day {
 
     @Override
     public String toString() {
+
+        lock.lock();
         StringBuilder sb = new StringBuilder();
         for (String key: graph.keySet()) {
             for(Node n : graph.get(key))
                 sb.append(n.toString());
         }
+        lock.unlock();
         return sb.toString();
     }
 
@@ -87,6 +94,9 @@ public class Day {
     }
 
     public void setOpen(boolean open) {
+        lock.lock();
+        mainLock.unlock();
         isOpen = open;
+        lock.unlock();
     }
 }

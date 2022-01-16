@@ -4,6 +4,7 @@ import Server.Pair;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Reservation {
 
@@ -11,11 +12,14 @@ public class Reservation {
     //[(("Porto","Lisboa"),21/01/2022);(("Lisboa","Porto"),22/01/2022)]
     List<Pair<Pair<String,String>, LocalDate>> flights;
     private boolean isCanceled;
+    ReentrantLock lock = new ReentrantLock();
+    ReentrantLock mainLock;
 
-    public Reservation(String username, List<Pair<Pair<String,String>, LocalDate>> flights){
+    public Reservation(String username, List<Pair<Pair<String,String>, LocalDate>> flights, ReentrantLock mainLock){
         this.username = username;
         this.flights = flights;
         this.isCanceled = false;
+        this.mainLock = mainLock;
     }
 
     public boolean ownsReservation(String username){
