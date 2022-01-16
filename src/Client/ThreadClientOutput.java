@@ -67,6 +67,11 @@ public class ThreadClientOutput implements Runnable{
                     this.lock.lock();
                     this.cond.signal();
                     this.lock.unlock();
+                } else {
+                    this.lock.lock();
+                    System.out.println(line);
+                    this.cond.signal();
+                    this.lock.unlock();
                 }
             }
         } catch (Exception e){

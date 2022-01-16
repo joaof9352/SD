@@ -32,7 +32,7 @@ public class ThreadClientInput implements Runnable{
     private static String[] opcoes3 = { // Administrador
             "Adicionar um novo voo", //1
             "Ver todos os voos diretos", //2
-            "Ver todos os voos possíveis até 2 escalas", //3
+            "Ver todos os voos possíveis até 2 escalas", //3 - TODO
             "Bloquear um dia" //4
     };
 
@@ -136,7 +136,11 @@ public class ThreadClientInput implements Runnable{
                                 String destination = stringIn.readLine();
                                 System.out.println("Qual a capacidade do avião?");
                                 String capacidade = stringIn.readLine();
+                                System.out.println("Código do voo?");
+                                String code = stringIn.readLine();
                                 writeSocket.writeUTF("NovoVoo"); writeSocket.flush();
+                                writeSocket.writeUTF(code);
+                                writeSocket.flush();
                                 writeSocket.writeUTF(origin);
                                 writeSocket.flush();
                                 writeSocket.writeUTF(destination);
@@ -145,14 +149,14 @@ public class ThreadClientInput implements Runnable{
                                 writeSocket.flush();
                                 break;
                             case 2:
-                                writeSocket.writeUTF("TodosVoosEscalas");
+                                writeSocket.writeUTF("TodosVoos");
                                 writeSocket.flush();
                                 lock.lock();
                                 cond.await();
                                 lock.unlock();
                                 break;
                             case 3:
-                                writeSocket.writeUTF("TodosVoos");
+                                writeSocket.writeUTF("TodosVoosEscalas");
                                 writeSocket.flush();
                                 lock.lock();
                                 cond.await();
@@ -234,7 +238,6 @@ public class ThreadClientInput implements Runnable{
                                 writeSocket.writeUTF(stringIn.readLine()); writeSocket.flush();
                             case 3:
                                 writeSocket.writeUTF("TodosVoos"); writeSocket.flush();
-                                System.out.println("Todos os voos até 2 escalas: ");
                                 break;
                             case 4:
                                 writeSocket.writeUTF("TodosVoosEscalas"); writeSocket.flush();

@@ -55,10 +55,23 @@ public class Flight {
         }
     }
 
-    public void buyTicket() {
+    public void buyTicket() throws FlightIsFullException {
+
+        if(flightFull())
+            throw new FlightIsFullException();
+
         try{
             lock.lock();
             this.takenPlaces++;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void refundTicket(){
+        try{
+            lock.lock();
+            this.takenPlaces--;
         } finally {
             lock.unlock();
         }

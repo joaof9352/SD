@@ -18,17 +18,9 @@ public class Company {
     private List<Flight> recurrentFlights = null;
     private Map<LocalDate, Day> flightCalendar = null;
     private List<Reservation> reservationList = null;
-    ReentrantLock lock = new ReentrantLock();
-    //Para segurança, quando há um login, gerar um inteiro random, enviado para o cliente e cada request tem que trazer esse inteiro
+    private ReentrantLock lock = new ReentrantLock();
 
-    public String getAllFlights(){
-        StringBuilder sb = new StringBuilder();
-        for(Flight f : recurrentFlights){
-            sb.append(f.toString());
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
+
 
     public Company(){
         recurrentFlights = new ArrayList<>();
@@ -40,6 +32,7 @@ public class Company {
 
     public void addNewRecurrentFlight(String code, String departureCity, String arrivalCity, int capacity){
         Flight f = new Flight(code,departureCity,arrivalCity,capacity,0);
+
         recurrentFlights.add(f); //Adiciona aos futuros dias
         //Adiciona aos atuais dias já criados
         for(LocalDate dateN : flightCalendar.keySet()){
@@ -62,7 +55,7 @@ public class Company {
     /* Client */
 
     // (("Porto","Lisboa"),21-01-2022) -> Precisamos dum lock
-    public int makeReservation(String username, List<Pair<String,String>> flights, LocalDate start, LocalDate end) throws ImpossibleReservationException, NoFlightFoundException, DayClosedException, InterruptedException {
+    public int makeReservation(String username, List<Pair<String,String>> flights, LocalDate start, LocalDate end) throws ImpossibleReservationException, NoFlightFoundException, DayClosedException, InterruptedException, FlightIsFullException {
 
         LocalDate actual = start;
         // [(("Porto","Lisboa"),23-10-2021),...]
@@ -83,7 +76,6 @@ public class Company {
             System.out.println("2");
             boolean flightReserved = false;
             while(!flightReserved && actual.isBefore(end) ){
-                System.out.println("3");
                 //Se não existir o Dia ou o Dia estiver aberto seguimos, caso contrário vemos o dia seguinte
                 if(!flightCalendar.containsKey(actual) || flightCalendar.get(actual).isOpen()){
                     //Se o voo não estiver cheio, adicionamos aos voos a reservar, caso contrário vemos o dia seguinte
@@ -93,14 +85,14 @@ public class Company {
                         flightReserved = true;
                     } else {
                         System.out.println("+1 dia pq voo cheio");
-                        actual.plusDays(1);
+                        actual = actual.plusDays(1);
+                        System.out.println(actual.toString() + " | " + end.toString());
                     }
                 } else {
                     System.out.println("+1 dia pq dia está fechado ou flightCalendar containsKey");
-                    actual.plusDays(1);
+                    actual = actual.plusDays(1);
                 }
             }
-            System.out.println("4");
             //Se o dia atual já é depois do último dia possível de reserva para o cliente, então a reserva é impossível
             if(!actual.isBefore(end)) {
                 System.out.println("passou dia atual");
@@ -114,7 +106,7 @@ public class Company {
             }
             flightCalendar.get(flight.getValue()).buyTicket(flight.getKey().getKey(),flight.getKey().getValue());
         }
-        System.out.println("Eu estou aqui!");
+
         reservationList.add(new Reservation(username,reservations));
         return reservationList.size()-1;
     }
@@ -127,10 +119,50 @@ public class Company {
     }
 
     public boolean ownsReservation(String username, int reservationId){
+        if(getReservation(reservationId) == null || getReservation(reservationId).isCanceled())
+            return false;
         return reservationList.get(reservationId).ownsReservation(username);
     }
 
     public Reservation getReservation(int reservationID){
+        if(reservationList.get(reservationID) == null || reservationList.get(reservationID).isCanceled())
+            return null;
         return reservationList.get(reservationID);
+    }
+
+    public void cancelReservation(int reservationID, String username) throws DayClosedException, ImpossibleReservationException {
+
+        if(getReservation(reservationID) != null) {
+            if (ownsReservation(username, reservationID) && !getReservation(reservationID).isCanceled()) {
+                List<Pair<Pair<String, String>, LocalDate>> reservations = getReservation(reservationID).getFlights();
+                //Garantir que os dias não estão fechados
+                for(Pair<Pair<String, String>, LocalDate> reserve : reservations){
+                    if(!flightCalendar.get(reserve.getValue()).isOpen()){
+                        throw new DayClosedException();
+                    }
+                }
+
+                //Retirar as reservas
+                for(Pair<Pair<String, String>, LocalDate> reserve : reservations){
+                    flightCalendar.get(reserve.getValue()).refundTicket(reserve.getKey().getKey(),reserve.getKey().getValue());
+                }
+                //setCanceled
+                getReservation(reservationID).setCanceled(true);
+
+            } else {
+                throw new ImpossibleReservationException();
+            }
+        } else {
+            throw new ImpossibleReservationException();
+        }
+    }
+
+    public String getAllFlights(){
+        StringBuilder sb = new StringBuilder();
+        for(Flight f : recurrentFlights){
+            sb.append(f.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

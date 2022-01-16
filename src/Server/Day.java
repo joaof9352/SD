@@ -41,12 +41,23 @@ public class Day {
         graph.get(f.getDepartureCity()).add(new Node(f));
     }
 
-    public void buyTicket(String departure, String arrival) throws DayClosedException {
-        if(!isOpen()){
-            throw new DayClosedException();
-        }
+    public void buyTicket(String departure, String arrival) throws DayClosedException, FlightIsFullException {
+
         for(Node n : graph.get(departure)){
-            n.getFlight().buyTicket();
+            if(n.getFlight().getArrivalCity().equals(arrival)) {
+                n.getFlight().buyTicket();
+                break;
+            }
+        }
+    }
+
+    public void refundTicket(String departure, String arrival) {
+
+        for(Node n : graph.get(departure)){
+            if(n.getFlight().getArrivalCity().equals(arrival)) {
+                n.getFlight().refundTicket();
+                break;
+            }
         }
     }
 

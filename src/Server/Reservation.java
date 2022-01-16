@@ -10,14 +10,24 @@ public class Reservation {
     String username;
     //[(("Porto","Lisboa"),21/01/2022);(("Lisboa","Porto"),22/01/2022)]
     List<Pair<Pair<String,String>, LocalDate>> flights;
+    private boolean isCanceled;
 
     public Reservation(String username, List<Pair<Pair<String,String>, LocalDate>> flights){
         this.username = username;
         this.flights = flights;
+        this.isCanceled = false;
     }
 
     public boolean ownsReservation(String username){
         return this.username.equals(username);
+    }
+
+    public void setCanceled(boolean canceled) {
+        isCanceled = canceled;
+    }
+
+    public boolean isCanceled() {
+        return isCanceled;
     }
 
     public List<Pair<Pair<String,String>, LocalDate>> getFlights() {

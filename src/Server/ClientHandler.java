@@ -74,14 +74,15 @@ public class ClientHandler implements Runnable{
 
                         String user = readSocket.readUTF();
                         String line = readSocket.readUTF();
+
                         while(!line.equals("FIN")){
                             airports.add(line);
                             line = readSocket.readUTF();
                         }
-                        System.out.println("passei");
+
                         LocalDate start = LocalDate.of(readSocket.readInt(),readSocket.readInt(), readSocket.readInt());
                         LocalDate end = LocalDate.of(readSocket.readInt(), readSocket.readInt(), readSocket.readInt());
-                        System.out.println("passei x2");
+
                         AuxReservation aux = new AuxReservation(user,airports,start,end);
 
                         try{
@@ -95,24 +96,59 @@ public class ClientHandler implements Runnable{
                             writeSocket.flush();
                         }
                     } else if(input.equals("BloquearDia")){
+
                         LocalDate bloq = LocalDate.of(readSocket.readInt(), readSocket.readInt(), readSocket.readInt());
                         company.closeDay(bloq);
+
                         writeSocket.writeUTF("Dia bloqueado: " + bloq.toString());
+                        writeSocket.flush();
+
                     } else if(input.equals("ConsultarReserva")) {
+
                         String username = readSocket.readUTF();
                         int reservationID = readSocket.readInt();
+
                         if(company.ownsReservation(username,reservationID)){
+
                             writeSocket.writeUTF("Reserva num. " + reservationID + "\n");
                             writeSocket.writeUTF(company.getReservation(reservationID).toString());
+
                         } else {
-                            writeSocket.writeUTF("ERRO: A reserva não lhe pertence.");
+
+                            writeSocket.writeUTF("ERRO: A reserva não foi encontrada ou não lhe pertence.");
+
                         }
 
                         writeSocket.flush();
+
                     } else if (input.equals("TodosVoos")){
+
                         writeSocket.writeUTF("Todos os voos disponíveis: ");
                         writeSocket.writeUTF(company.getAllFlights());
                         writeSocket.flush();
+
+                    } else if (input.equals("CancelaReserva")) {
+
+                        String username = readSocket.readUTF();
+                        int reservationID = readSocket.readInt();
+                        try {
+                            company.cancelReservation(reservationID, username);
+                            writeSocket.writeUTF("A reserva foi anulada com sucesso!");
+                        } catch (Exception e) {
+                            writeSocket.writeUTF("ERRO: Reserva não cancelada.");
+                        } finally {
+                            writeSocket.flush();
+                        }
+                    } else if (input.equals("NovoVoo")) {
+
+                        String code = readSocket.readUTF();
+                        String departure = readSocket.readUTF();
+                        String arrival = readSocket.readUTF();
+                        int capacity = readSocket.readInt();
+
+                        company.addNewRecurrentFlight(code, departure, arrival, capacity);
+
+                        writeSocket.writeUTF("Voo adicionado!");
                     }
                 }
             } catch (Exception e) {
