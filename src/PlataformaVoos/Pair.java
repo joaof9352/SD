@@ -1,4 +1,4 @@
-package Server;
+package PlataformaVoos;
 
 import java.io.Serializable;
 

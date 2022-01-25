@@ -1,4 +1,4 @@
-package Server;
+package PlataformaVoos;
 
 
 import java.time.LocalDate;
@@ -13,7 +13,7 @@ public class AuxReservation {
     private LocalDate dataFinal;
 
     public AuxReservation(String userId, List<String> airports, LocalDate dataInicio, LocalDate dataFinal) {
-        username = userId;
+        this.username = userId;
         this.airports = airports;
         this.dataInicio = dataInicio;
         this.dataFinal = dataFinal;

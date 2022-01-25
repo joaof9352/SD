@@ -1,4 +1,4 @@
-package Server.Exceptions;
+package Exceptions;
 
 public class UserAlreadyExistsException extends Exception {
     public UserAlreadyExistsException(){

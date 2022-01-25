@@ -7,8 +7,8 @@ public class Authentication {
     private boolean admin;
 
     public Authentication(){
-        username = null;
-        password = null;
+        this.username = null;
+        this.password = null;
         this.authenticated = false;
         this.admin = false;
     }

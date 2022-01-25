@@ -1,4 +1,4 @@
-package Server.Exceptions;
+package Exceptions;
 
 public class DayClosedException extends Exception{
 

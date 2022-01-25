@@ -1,6 +1,6 @@
-package Server;
+package PlataformaVoos;
 
-import Server.Exceptions.FlightIsFullException;
+import Exceptions.FlightIsFullException;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -17,8 +17,7 @@ public class Flight {
         return code + ": " + departureCity + " -> " + arrivalCity;
     }
 
-    public Flight(String code, String departureCity, String arrivalCity, int capacity, int takenPlaces){
-
+    public Flight(String code, String departureCity, String arrivalCity, int capacity, int takenPlaces) {
         this.code = code;
         this.departureCity = departureCity;
         this.arrivalCity = arrivalCity;
@@ -26,7 +25,7 @@ public class Flight {
         this.takenPlaces = takenPlaces;
     }
 
-    public Flight(Flight f){
+    public Flight(Flight f) {
         this.code = f.getCode();
         this.departureCity = f.getDepartureCity();
         this.arrivalCity = f.getArrivalCity();
@@ -34,15 +33,7 @@ public class Flight {
         this.takenPlaces = 0;
     }
 
-    public Flight(String departureCity, String arrivalCity, int capacity){
-        this.code = "0123";
-        this.departureCity = departureCity;
-        this.arrivalCity = arrivalCity;
-        this.capacity = capacity;
-        this.takenPlaces = 0;
-    }
-
-    public boolean flightExists(String departureCity, String arrivalCity){
+    public boolean flightExists(String departureCity, String arrivalCity) {
         return departureCity.equals(this.getDepartureCity()) && arrivalCity.equals(this.getArrivalCity());
     }
 
@@ -56,11 +47,9 @@ public class Flight {
     }
 
     public void buyTicket() throws FlightIsFullException {
+        if (flightFull()) throw new FlightIsFullException();
 
-        if(flightFull())
-            throw new FlightIsFullException();
-
-        try{
+        try {
             lock.lock();
             this.takenPlaces++;
         } finally {

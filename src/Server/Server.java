@@ -1,15 +1,15 @@
 package Server;
 
-import Server.Exceptions.UserAlreadyExistsException;
+import PlataformaVoos.Company;
+import PlataformaVoos.UserListSingleton;
+import Exceptions.UserAlreadyExistsException;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.LocalDate;
 
 
-public class test {
-
+public class Server {
     public static void main(String[] args) throws IOException, UserAlreadyExistsException {
         Company c = new Company();
         c.addNewRecurrentFlight("0001","Porto", "Lisboa", 1);
@@ -20,12 +20,10 @@ public class test {
         UserListSingleton.getInstance().signUp("user","user",false);
         UserListSingleton.getInstance().signUp("user2","user2",false);
 
-        Socket s = null;
-
         ServerSocket ss = new ServerSocket(12345);
+        Socket s;
 
         while (true) {
-
             s = ss.accept();
             System.out.println("Nova ligação!");
             Thread client = new Thread(new ClientHandler(s,c));

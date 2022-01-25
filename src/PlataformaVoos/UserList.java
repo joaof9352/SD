@@ -1,15 +1,15 @@
-package Server;
+package PlataformaVoos;
 
-import Server.Exceptions.IncorrectPasswordException;
-import Server.Exceptions.UserAlreadyExistsException;
-import Server.Exceptions.UserNotFoundException;
+import Exceptions.IncorrectPasswordException;
+import Exceptions.UserAlreadyExistsException;
+import Exceptions.UserNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserList {
 
-    Map<String, User> userMap = null;
+    Map<String, User> userMap;
 
     public UserList(){
         userMap = new HashMap<>();
@@ -17,21 +17,16 @@ public class UserList {
 
     /* Authentication */
     public void signUp(String username, String password, boolean admin) throws UserAlreadyExistsException {
-        if (userMap.containsKey(username)) {
-            throw new UserAlreadyExistsException();
-        } else {
-            userMap.put(username, new User(username, password, admin));
-        }
+        if (userMap.containsKey(username))throw new UserAlreadyExistsException();
+        else userMap.put(username, new User(username, password, admin));
     }
 
     public void signIn(String username, String password) throws IncorrectPasswordException, UserNotFoundException {
-        if (userMap.containsKey(username)){
-            if(!userMap.get(username).checkPassword(password)){
+        if (userMap.containsKey(username)) {
+            if(!userMap.get(username).checkPassword(password))
                 throw new IncorrectPasswordException();
-            }
-        } else {
+        } else
             throw new UserNotFoundException();
-        }
     }
 
     public boolean isAdmin(String username){

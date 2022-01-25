@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Client {
     public static void main (String[] args){
 
-        //Initializing necessary variables
-        Socket socket = null;
+        // Initializing necessary variables
+        Socket socket;
         ReentrantLock lock = new ReentrantLock();
         Condition cond = lock.newCondition();
 
@@ -36,10 +36,7 @@ public class Client {
             System.out.println("Obrigado por escolher a TAP. A chegar atrasados juntos desde 1945\n");
             socket.close();
 
-        } catch (IOException e){
-            System.out.println(e.getMessage());
-        }
-        catch (InterruptedException e){
+        } catch (IOException | InterruptedException e){
             System.out.println(e.getMessage());
         }
     }

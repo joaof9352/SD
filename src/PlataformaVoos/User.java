@@ -1,4 +1,4 @@
-package Server;
+package PlataformaVoos;
 
 public class User {
 

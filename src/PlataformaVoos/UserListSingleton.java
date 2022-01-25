@@ -1,6 +1,4 @@
-package Server;
-
-import java.util.HashMap;
+package PlataformaVoos;
 
 public class UserListSingleton {
 

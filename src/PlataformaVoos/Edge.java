@@ -1,13 +1,13 @@
-package Server;
+package PlataformaVoos;
 
-public class Node {
+public class Edge {
     private String origin, destination;
     private Flight flight;
 
-    public Node(Flight f){
+    public Edge(Flight f){
         this.flight = f;
-        origin = f.getDepartureCity();
-        destination = f.getArrivalCity();
+        this.origin = f.getDepartureCity();
+        this.destination = f.getArrivalCity();
     }
 
     @Override
